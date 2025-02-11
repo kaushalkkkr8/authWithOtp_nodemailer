@@ -36,14 +36,11 @@ const signUp = async (req, res) => {
         }
         const hashedPass = await bcrypt.hash(password, 10)
         const newUser = new UserModel({ email, password: hashedPass, otp: randomOtp })
-        console.log("email", email);
-        console.log("password", password);
-        console.log("randomOtp", randomOtp);
+  
 
         await sendMail(email, "Verification Code", `<p>Your verification code is <strong>${randomOtp}</strong>.</p><p>Seller email: <strong>${email}</strong>
             `);
 
-        console.log("Mail sent successfully");
         res.status(200).json({ message: "OTP sent successfully", signUp: "successfully" });
         await newUser.save()
     } catch (error) {
@@ -52,8 +49,7 @@ const signUp = async (req, res) => {
 }
 
 const logIn = async (req, res) => {
-    const { email, password, otp } = req.body;
-    console.log(email, password, otp);
+    const { email, password } = req.body;
 
     try {
         const User = await UserModel.findOne({ email });
@@ -67,21 +63,42 @@ const logIn = async (req, res) => {
             return res.status(409).json({ message: "Incorrect Password", success: false });
         }
 
-        if (User.otp !== otp) {
-            return res.status(400).json({ message: "Invalid OTP" });
-        }
 
         const token = jwt.sign({ id: User._id }, process.env.Jwt_Secret, { expiresIn: "24h" });
 
-        return res.status(200).json({ message: "OTP verified successfully", token });
+        return res.status(200).json({ message: "LogIn successfully", token });
 
     } catch (error) {
         console.error("Login Error:", error);
-        if (!res.headersSent) {
-            return res.status(500).json({ msg: "Internal Server Error" });
-        }
+
+        return res.status(500).json({ msg: "Internal Server Error" });
+
     }
 };
 
+const otpVerify = async (req, res) => {
+    const { otp, email } = req.body
 
-module.exports = { signUp, logIn }
+    try {
+        const User = await UserModel.findOne({email})
+        if (!User) res.status(409).json({ msg: "User Not Found, please sign up" });
+
+        if (User.otp === otp) {
+            User.otp = null
+            
+            await User.save()
+            return res.status(200).json({ message: "OTP verified successfully" });
+        }
+        else{
+            return res.status(400).json({ error: "Invalid OTP" });
+
+        }
+
+    } catch (error) {
+        return res.status(500).json({ msg: " otp Internal Server Error" });
+    }
+
+}
+
+
+module.exports = { signUp, logIn, otpVerify }

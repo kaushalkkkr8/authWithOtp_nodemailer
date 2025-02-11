@@ -18,7 +18,7 @@ const logInVAlidation=(req,res,next)=>{
     const schema= joi.object({
         email:joi.string().email().required(),
         password:joi.string().min(5).max(100).required(),
-        otp: joi.string().required()
+      
     })
     const { error } = schema.validate(req.body);
 
@@ -29,5 +29,18 @@ const logInVAlidation=(req,res,next)=>{
     next();
 
 }
+const otpVerification=(req,res,next)=>{
+    const schema= joi.object({
+        email:joi.string().email().required(),
+        otp: joi.string().required()
+    })
+    const { error } = schema.validate(req.body);
+  
+    
+    if (error) {
+      res.json({ error: "Bad Request",error });
+    }
+    next();
+}
 
-module.exports={signUpValidation,logInVAlidation}
+module.exports={signUpValidation,logInVAlidation,otpVerification}

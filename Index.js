@@ -16,21 +16,6 @@ app.use("/profile",authProfile)
 
 
 
-// const nodemailer = require("nodemailer");
-
-// const transporter = nodemailer.createTransport({
-//   host: "smtp.gmail.com",
-//   port: 465,
-//   secure: true, 
-//   auth: {
-//     user: "kaushalrithvik8@gmail.email",
-//     pass: "vbiarvnbtxzthlgz",
-//   },
-// });
-// const sendMail=(to,sub,mail)=>{
-//   return  transporter.sendMail({to,sub,mail})
-// }
-
 
 
 
